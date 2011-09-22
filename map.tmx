@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="12" height="9" tilewidth="64" tileheight="64">
+ <tileset firstgid="1" name="tilemap" tilewidth="64" tileheight="64">
+  <image source="tilemap.png" width="2048" height="2048"/>
+ </tileset>
+ <layer name="Background" width="12" height="9">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA2thZGBoAeJmPFiBiYGBH4jZgbgbyJ/AiKBBeCaaenWgOnkg1maC8D8wMDA8BeK3QNwI5E9H0gvD86H6QG55DVR3AYhfQtWjY5CZ/VAapP49UN0rIH6HQ30jknqQXROh9FSoGD71zUj29OMJK3T15Tj8CcPTCIQ5LgwAZqXmGbABAAA=
+  </data>
+ </layer>
+ <layer name="Masked" width="12" height="9">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA2NgIA2sZMKOB8IMctQTayc2OXLU48PkAAD//j6JsAEAAA==
+  </data>
+ </layer>
+ <objectgroup name="Paths" width="12" height="9">
+  <object name="1" x="0" y="64" width="64" height="64"/>
+  <object name="2" x="320" y="64" width="64" height="64"/>
+  <object name="3" x="320" y="128" width="64" height="64"/>
+  <object name="4" x="640" y="128" width="64" height="64"/>
+  <object name="5" x="640" y="448" width="64" height="64"/>
+  <object name="6" x="192" y="448" width="64" height="64"/>
+  <object name="7" x="192" y="320" width="64" height="64"/>
+  <object name="8" x="0" y="320" width="64" height="64"/>
+ </objectgroup>
+</map>
