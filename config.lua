@@ -9,6 +9,7 @@ app.config = {
   REGULAR_FONT = love.graphics.newFont("fonts/VeraMono.ttf", 15),
   TILE_WIDTH = 64,
   TILE_HEIGHT = 64,
+  TILE_CENTER_OFFSET = 16,
   ENEMY_WIDTH = 32,
   ENEMY_HEIGHT = 32,
   TILES = {},
@@ -21,26 +22,40 @@ app.config = {
   CREEPS = {
     HORNET = {
       image = love.graphics.newImage("images/creeps/hornet.png"),
-      speed = 15,
+      speed = 128,
       hp = 5
     },
     LANTERN = {
       image = love.graphics.newImage("images/creeps/lantern.png"),
-      speed = 8,
+      speed = 64,
       hp = 10
     },
     SKULL = {
       image = love.graphics.newImage("images/creeps/skull.png"),
-      speed = 10,
+      speed = 96,
       hp = 15
     },
     KNIGHT = {
       image = love.graphics.newImage("images/creeps/knight.png"),
-      speed = 5,
+      speed = 64,
       hp = 20
     }
   },
-
+  WAVES = {
+    "HORNET",
+    "LANTERN",
+    "HORNET",
+    "KNIGHT",
+    "LANTERN",
+    "SKULL",
+    "HORNET",
+    "LANTERN",
+    "HORNET",
+    "KNIGHT",
+    "LANTERN",
+    "SKULL"
+  },
+  WAVE_DIFFICULTY_INCREASE = 1.1,
   TOWERS = {
     ARROW = {
       image = love.graphics.newImage("images/towers/arrow.png"),

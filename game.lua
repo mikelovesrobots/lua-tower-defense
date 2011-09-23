@@ -6,12 +6,15 @@ function Game:enterState()
   self.lives = 8
   self.money = 20
   self.score = 0
-  self.next_wave_dt = 0
+  self.next_wave_dt = 10
+  self.next_creep_dt = 0
   self.creeps_left = 0
 
   self.selected_tower = nil
   self.hover_tile = nil
   self.towers = {}
+  self.creeps = {}
+  self.current_wave = 1
 end
 
 function Game:keypressed(key, unicode)
@@ -26,10 +29,15 @@ function Game:draw()
   self:draw_map()
   self:draw_map_towers()
   self:draw_ui()
+  self:draw_creeps()
 end
 
 function Game:update(dt)
   self:update_hover_tile(dt)
+  self:update_release_creeps(dt)
+  self:update_next_wave(dt)
+  self:update_move_creeps(dt)
+  self:update_remove_dead_creeps()
 end
 
 function Game:update_hover_tile(dt)
@@ -42,6 +50,85 @@ function Game:update_hover_tile(dt)
   end
 end
 
+function Game:update_release_creeps(dt)
+  self.next_creep_dt = self.next_creep_dt - dt
+  if self.next_creep_dt < 0 and self.creeps_left > 0 then
+    self.next_creep_dt = 1
+    self:spawn_creep()
+  end
+end
+
+function Game:spawn_creep()
+    self.creeps_left = self.creeps_left - 1
+    if self.creeps_left == 0 then
+      self.next_wave_dt = 10
+    end
+
+    local x, y = self:creep_target(1)
+    local blueprint = app.config.CREEPS[app.config.WAVES[self.current_wave]]
+
+    local creep = {
+      x=x - app.config.TILE_WIDTH,
+      y=y,
+      target=1,
+      remove=false,
+      hp=blueprint.hp * (self.current_wave ^ app.config.WAVE_DIFFICULTY_INCREASE),
+      blueprint = blueprint
+    }
+
+    table.push(self.creeps, creep)
+end
+
+function Game:update_next_wave(dt)
+  if self.creeps_left == 0 and #self.creeps == 0 then
+    self.next_wave_dt = self.next_wave_dt - dt
+    if self.next_wave_dt <= 0 then
+      self.next_wave_dt = 0
+      self.creeps_left = 10
+      self.current_wave = self.current_wave + 1
+    end
+  end
+end
+
+function Game:update_move_creeps(dt)
+  table.each(self.creeps, function(creep) self:move_creep(creep, dt) end)
+end
+
+function Game:update_remove_dead_creeps()
+  self.creeps = table.reject(self.creeps, function(creep) return creep.remove end)
+end
+
+function Game:move_creep(creep, dt)
+  local x, y = self:creep_target(creep.target)
+  local angle = math.angle(creep.x, creep.y, x, y)
+  creep.x, creep.y = math.calc_destination(creep.x, creep.y, angle, creep.blueprint.speed * dt)
+
+  if self:creep_at_target(creep) then
+    creep.target = creep.target + 1
+    if creep.target > self:max_targets() then
+      creep.remove = true
+      self:lose_life()
+    end
+  end
+end
+
+function Game:lose_life()
+  self.lives = self.lives - 1
+  if self.lives < 0 then
+    self:game_over()
+  end
+end
+
+function Game:game_over()
+  debug("game over")
+end
+
+function Game:creep_at_target(creep)
+  local x, y = self:creep_target(creep.target)
+  local diff_x = math.abs(x - creep.x)
+  local diff_y = math.abs(y - creep.y)
+  return diff_x < 2 and diff_y < 2
+end
 
 function Game:draw_map()
   love.graphics.setColor(255,255,255)
@@ -124,6 +211,14 @@ function Game:draw_ui_tower_details()
   end
 end
 
+function Game:draw_creeps()
+  table.each(self.creeps, function(creep) self:draw_creep(creep) end)
+end
+
+function Game:draw_creep(creep)
+  love.graphics.draw(creep.blueprint.image, creep.x, creep.y)
+end
+
 function Game:mousepressed(x, y, button)
   self:mousepressed_ui_towers(x, y, button)
   self:mousepressed_map(x, y, button)
@@ -191,4 +286,17 @@ function Game:purchase_tower(tower_name, x, y)
   }
   self.money = self.money - tower.blueprint.cost
   table.push(self.towers, tower)
+end
+
+function Game:creep_target(index)
+  local object = map.layers[3].objects[index]
+  if object then
+    return object.x + app.config.TILE_CENTER_OFFSET, object.y + app.config.TILE_CENTER_OFFSET
+  else
+    return nil
+  end
+end
+
+function Game:max_targets()
+  return #map.layers[3].objects
 end
