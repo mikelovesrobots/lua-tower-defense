@@ -71,13 +71,15 @@ function Game:spawn_creep()
 
     local x, y = self:creep_target(1)
     local blueprint = app.config.CREEPS[app.config.WAVES[self.current_wave]]
+    local maxhp = blueprint.hp * (self.current_wave ^ app.config.WAVE_DIFFICULTY_INCREASE)
 
     local creep = {
       x=x - app.config.TILE_WIDTH,
       y=y,
       target=1,
       remove=false,
-      hp=blueprint.hp * (self.current_wave ^ app.config.WAVE_DIFFICULTY_INCREASE),
+      hp=maxhp,
+      maxhp=maxhp,
       blueprint = blueprint
     }
 
@@ -315,7 +317,27 @@ function Game:draw_creeps()
 end
 
 function Game:draw_creep(creep)
+  self:draw_creep_healthbar(creep, creep.hp, creep.maxhp)
+  love.graphics.setColor(255,255,255)
   love.graphics.draw(creep.blueprint.image, creep.x, creep.y)
+end
+
+function Game:draw_creep_healthbar(creep, hp, maxhp)
+  local percentage = hp / maxhp;
+  if percentage > 0 then
+    local hp_width = app.config.ENEMY_WIDTH * percentage
+    local y = creep.y - 5
+
+    if percentage < 0.5 then
+      love.graphics.setColor(app.config.UI_HEALTHBAR_BAD_COLOR)
+    elseif percentage >= 0.5 and percentage <= 0.75 then
+      love.graphics.setColor(app.config.UI_HEALTHBAR_OKAY_COLOR)
+    else
+      love.graphics.setColor(app.config.UI_HEALTHBAR_GOOD_COLOR)
+    end
+
+    love.graphics.rectangle('fill', creep.x, y, hp_width, 1)
+  end
 end
 
 function Game:draw_projectiles()
