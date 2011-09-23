@@ -44,10 +44,10 @@ function Game:update(dt)
                         self:update_fire_towers(dt)
                         self:update_projectiles(dt)
                         self:update_remove_dead_projectiles()
-                        self:fuuuuu()
                       end)
   if not(err == "player has won" or err == "player has died") then
     error(err)
+    -- stack traces are getting swallowed, gross!
   end
 end
 
