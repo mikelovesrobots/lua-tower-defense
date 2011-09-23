@@ -7,6 +7,8 @@ require('screen_manager')
 require('map')
 require('config')
 require('game')
+require('win_screen')
+require('dead_screen')
 
 DEBUG = true
 

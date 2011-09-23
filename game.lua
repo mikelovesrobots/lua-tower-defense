@@ -20,7 +20,7 @@ end
 
 function Game:keypressed(key, unicode)
   if (key == "q") then
-    screen_manager:popState()
+    love.event.push('q') -- quit the game
   else
     debug("unmapped key:" .. key)
   end
@@ -35,14 +35,20 @@ function Game:draw()
 end
 
 function Game:update(dt)
-  self:update_hover_tile(dt)
-  self:update_release_creeps(dt)
-  self:update_next_wave(dt)
-  self:update_move_creeps(dt)
-  self:update_remove_dead_creeps()
-  self:update_fire_towers(dt)
-  self:update_projectiles(dt)
-  self:update_remove_dead_projectiles()
+  status, err = pcall(function()
+                        self:update_hover_tile(dt)
+                        self:update_release_creeps(dt)
+                        self:update_next_wave(dt)
+                        self:update_move_creeps(dt)
+                        self:update_remove_dead_creeps()
+                        self:update_fire_towers(dt)
+                        self:update_projectiles(dt)
+                        self:update_remove_dead_projectiles()
+                        self:fuuuuu()
+                      end)
+  if not(err == "player has won" or err == "player has died") then
+    error(err)
+  end
 end
 
 function Game:update_hover_tile(dt)
@@ -212,12 +218,20 @@ end
 function Game:lose_life()
   self.lives = self.lives - 1
   if self.lives < 0 then
-    self:game_over()
+    self:lose_game()
   end
 end
 
-function Game:game_over()
-  debug("game over")
+function Game:lose_game()
+  screen_manager:popState()
+  screen_manager:pushState('DeadScreen')
+  error("player has died")
+end
+
+function Game:win_game()
+  screen_manager:popState()
+  screen_manager:pushState('WinScreen')
+  error("player has won")
 end
 
 function Game:creep_at_target(creep)

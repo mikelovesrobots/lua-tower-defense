@@ -1,6 +1,7 @@
 app = {}
 app.config = {
   UI_FONT = love.graphics.newFont("fonts/BOOTERFZ.ttf", 26),
+  UI_LARGE_FONT = love.graphics.newFont("fonts/BOOTERFZ.ttf", 48),
   UI_MONEY_COLOR = {207,191,14},
   UI_LIVES_COLOR = {185,0,222},
   UI_TIMER_COLOR = {252,182,5},
@@ -26,7 +27,9 @@ app.config = {
     MONEY=love.graphics.newImage("images/ui/money.png"),
     LIVES=love.graphics.newImage("images/ui/lives.png"),
     TIMER=love.graphics.newImage("images/ui/timer.png"),
-    WAVE=love.graphics.newImage("images/ui/wave.png")
+    WAVE=love.graphics.newImage("images/ui/wave.png"),
+    WIN=love.graphics.newImage("images/screens/win.png"),
+    LOSE=love.graphics.newImage("images/screens/lose.png")
   },
   CREEPS = {
     HORNET = {
