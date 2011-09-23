@@ -9,10 +9,16 @@ app.config = {
   REGULAR_FONT = love.graphics.newFont("fonts/VeraMono.ttf", 15),
   TILE_WIDTH = 64,
   TILE_HEIGHT = 64,
-  TILE_CENTER_OFFSET = 16,
+  TILE_CENTER_OFFSET = 32,
   ENEMY_WIDTH = 32,
   ENEMY_HEIGHT = 32,
+  ENEMY_CENTER_OFFSET = 16,
+  TIME_BETWEEN_WAVES = 6,
   TILES = {},
+  PROJECTILE = {
+    radius=3,
+    speed=512
+  },
   UI = {
     MONEY=love.graphics.newImage("images/ui/money.png"),
     LIVES=love.graphics.newImage("images/ui/lives.png"),
@@ -64,7 +70,7 @@ app.config = {
         y=100
       },
       damage = 10,
-      radius = 128,
+      radius = 192,
       cooldown = 0.5,
       cost = 10,
       splash = 0,
@@ -77,7 +83,7 @@ app.config = {
         y=100
       },
       damage = 15,
-      radius = 128,
+      radius = 192,
       cooldown = 0.4,
       cost = 20,
       splash = 8,
@@ -103,7 +109,7 @@ app.config = {
         y=184
       },
       damage = 25,
-      radius = 96,
+      radius = 128,
       cooldown = 0.8,
       cost = 40,
       splash = 32,

@@ -14,7 +14,8 @@ function Game:enterState()
   self.hover_tile = nil
   self.towers = {}
   self.creeps = {}
-  self.current_wave = 1
+  self.projectiles = {}
+  self.current_wave = 0
 end
 
 function Game:keypressed(key, unicode)
@@ -30,6 +31,7 @@ function Game:draw()
   self:draw_map_towers()
   self:draw_ui()
   self:draw_creeps()
+  self:draw_projectiles()
 end
 
 function Game:update(dt)
@@ -38,6 +40,9 @@ function Game:update(dt)
   self:update_next_wave(dt)
   self:update_move_creeps(dt)
   self:update_remove_dead_creeps()
+  self:update_fire_towers(dt)
+  self:update_projectiles(dt)
+  self:update_remove_dead_projectiles()
 end
 
 function Game:update_hover_tile(dt)
@@ -53,7 +58,7 @@ end
 function Game:update_release_creeps(dt)
   self.next_creep_dt = self.next_creep_dt - dt
   if self.next_creep_dt < 0 and self.creeps_left > 0 then
-    self.next_creep_dt = 1
+    self.next_creep_dt = 0.5
     self:spawn_creep()
   end
 end
@@ -61,7 +66,7 @@ end
 function Game:spawn_creep()
     self.creeps_left = self.creeps_left - 1
     if self.creeps_left == 0 then
-      self.next_wave_dt = 10
+      self.next_wave_dt = app.config.TIME_BETWEEN_WAVES
     end
 
     local x, y = self:creep_target(1)
@@ -94,8 +99,98 @@ function Game:update_move_creeps(dt)
   table.each(self.creeps, function(creep) self:move_creep(creep, dt) end)
 end
 
+function Game:update_projectiles(dt)
+  table.each(self.projectiles, function(projectile)
+                                 self:move_projectile(projectile, dt)
+                               end)
+end
+
+function Game:move_projectile(projectile, dt)
+  local target_x = projectile.target.x + app.config.ENEMY_CENTER_OFFSET
+  local target_y = projectile.target.y + app.config.ENEMY_CENTER_OFFSET
+  local angle = math.angle(projectile.x, projectile.y, target_x, target_y)
+  projectile.x, projectile.y = math.calc_destination(projectile.x, projectile.y, angle, app.config.PROJECTILE.speed * dt)
+  if self:point_at_target(projectile.x, projectile.y, target_x, target_y) then
+    self:projectile_hit_target(projectile)
+  end
+end
+
+function Game:projectile_hit_target(projectile)
+  projectile.remove = true
+  self:damage_creep(projectile.target, projectile.tower.damage)
+end
+
+function Game:damage_creep(creep, damage)
+  creep.hp = creep.hp - damage
+  if creep.hp < 0 and not creep.remove then
+    self:kill_and_reward_creep(creep)
+  end
+end
+
+function Game:kill_and_reward_creep(creep)
+  self:kill_creep(creep)
+  self.money = self.money + self.current_wave
+end
+
+function Game:kill_creep(creep)
+  creep.remove = true
+end
+
 function Game:update_remove_dead_creeps()
   self.creeps = table.reject(self.creeps, function(creep) return creep.remove end)
+end
+
+function Game:update_fire_towers(dt)
+  table.each(self.towers, function(tower)
+                            tower.cooldown = tower.cooldown - dt
+                            if tower.cooldown < 0 and self:tower_has_target(tower) then
+                              self:fire_tower(tower, self:tower_target(tower))
+                            end
+                          end)
+end
+
+function Game:update_remove_dead_projectiles()
+  self.projectiles = table.reject(self.projectiles, function(projectile) return projectile.remove end)
+end
+
+function Game:tower_has_target(tower)
+  local creep = self:tower_target(tower)
+  if creep then
+    return true
+  else
+    return false
+  end
+end
+
+function Game:tower_target(tower)
+  return table.detect(self.creeps, function(creep)
+                                     local point_x, point_y = self:tile_to_point(tower.x, tower.y)
+
+                                     if math.dist(point_x + app.config.TILE_CENTER_OFFSET, point_y + app.config.TILE_CENTER_OFFSET, creep.x, creep.y) < tower.blueprint.radius then
+                                       return creep
+                                     else
+                                       return nil
+                                     end
+                                   end)
+end
+
+function Game:fire_tower(tower, target)
+  self:spawn_projectile(tower, target)
+  tower.cooldown = tower.blueprint.cooldown
+end
+
+function Game:spawn_projectile(tower, creep)
+  local point_x, point_y = self:tile_to_point(tower.x, tower.y)
+
+  local projectile = {
+    x=point_x + app.config.TILE_CENTER_OFFSET,
+    y=point_y + app.config.TILE_CENTER_OFFSET,
+    target=creep,
+    tower=tower.blueprint,
+    remove=false
+  }
+
+  table.push(self.projectiles, projectile)
 end
 
 function Game:move_creep(creep, dt)
@@ -125,9 +220,13 @@ end
 
 function Game:creep_at_target(creep)
   local x, y = self:creep_target(creep.target)
-  local diff_x = math.abs(x - creep.x)
-  local diff_y = math.abs(y - creep.y)
-  return diff_x < 2 and diff_y < 2
+  return self:point_at_target(x,y,creep.x,creep.y)
+end
+
+function Game:point_at_target(x1,y1,x2,y2)
+  local diff_x = math.abs(x1 - x2)
+  local diff_y = math.abs(y1 - y2)
+  return diff_x < 4 and diff_y < 4
 end
 
 function Game:draw_map()
@@ -219,6 +318,14 @@ function Game:draw_creep(creep)
   love.graphics.draw(creep.blueprint.image, creep.x, creep.y)
 end
 
+function Game:draw_projectiles()
+  table.each(self.projectiles, function(projectile) self:draw_projectile(projectile) end)
+end
+
+function Game:draw_projectile(projectile)
+  love.graphics.circle('fill', projectile.x, projectile.y, app.config.PROJECTILE.radius)
+end
+
 function Game:mousepressed(x, y, button)
   self:mousepressed_ui_towers(x, y, button)
   self:mousepressed_map(x, y, button)
@@ -282,6 +389,7 @@ function Game:purchase_tower(tower_name, x, y)
   local tower = {
     x=x,
     y=y,
+    cooldown=0,
     blueprint=app.config.TOWERS[tower_name]
   }
   self.money = self.money - tower.blueprint.cost
@@ -291,7 +399,7 @@ end
 function Game:creep_target(index)
   local object = map.layers[3].objects[index]
   if object then
-    return object.x + app.config.TILE_CENTER_OFFSET, object.y + app.config.TILE_CENTER_OFFSET
+    return object.x + app.config.ENEMY_CENTER_OFFSET, object.y + app.config.ENEMY_CENTER_OFFSET
   else
     return nil
   end
