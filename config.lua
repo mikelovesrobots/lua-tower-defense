@@ -1,15 +1,22 @@
 app = {}
 app.config = {
-  MENU_TITLE_COLOR = {235, 10, 68},
-  MENU_HIGHLIGHT_COLOR = {255, 179, 11},
-  MENU_REGULAR_COLOR = {200, 200, 200},
-  MENU_FONT = love.graphics.newFont("fonts/VeraMono.ttf", 15),
-  TITLE_FONT = love.graphics.newFont("fonts/AngelicWar.ttf", 48),
+  UI_FONT = love.graphics.newFont("fonts/DeutscheZierschrift.ttf", 24),
+  UI_MONEY_COLOR = {207,191,14},
+  UI_LIVES_COLOR = {185,0,222},
+  UI_TIMER_COLOR = {252,182,5},
+  UI_CREEPS_LEFT_COLOR = {127,232,5},
+  REGULAR_FONT = love.graphics.newFont("fonts/VeraMono.ttf", 15),
   TILE_WIDTH = 64,
   TILE_HEIGHT = 64,
   ENEMY_WIDTH = 32,
   ENEMY_HEIGHT = 32,
   TILES = {},
+  UI = {
+    MONEY=love.graphics.newImage("images/ui/money.png"),
+    LIVES=love.graphics.newImage("images/ui/lives.png"),
+    TIMER=love.graphics.newImage("images/ui/timer.png"),
+    WAVE=love.graphics.newImage("images/ui/wave.png")
+  },
   CREEPS = {
     HORNET = {
       image = love.graphics.newImage("images/creeps/hornet.png"),
@@ -35,6 +42,11 @@ app.config = {
 
   TOWERS = {
     ARROW = {
+      image = love.graphics.newImage("images/towers/arrow.png"),
+      ui = {
+        x=800,
+        y=100
+      },
       damage = 10,
       radius = 128,
       cooldown = 0.5,
@@ -42,6 +54,11 @@ app.config = {
       splash_radius = 0
     },
     ICE = {
+      image = love.graphics.newImage("images/towers/ice.png"),
+      ui = {
+        x=900,
+        y=100
+      },
       damage = 15,
       radius = 128,
       cooldown = 0.4,
@@ -49,6 +66,11 @@ app.config = {
       splash_radius = 8
     },
     SNIPER = {
+      image = love.graphics.newImage("images/towers/sniper.png"),
+      ui = {
+        x=800,
+        y=184
+      },
       damage = 10,
       radius = 256,
       cooldown = 0.5,
@@ -56,6 +78,11 @@ app.config = {
       splash_radius = 0
     },
     SUN = {
+      image = love.graphics.newImage("images/towers/sun.png"),
+      ui = {
+        x=900,
+        y=184
+      },
       damage = 25,
       radius = 96,
       cooldown = 0.8,
