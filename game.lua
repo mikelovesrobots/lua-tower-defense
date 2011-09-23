@@ -9,6 +9,7 @@ function Game:enterState()
   self.next_wave_dt = 10
   self.next_creep_dt = 0
   self.creeps_left = 0
+  self.game_is_over = false
 
   self.selected_tower = nil
   self.hover_tile = nil
@@ -35,20 +36,15 @@ function Game:draw()
 end
 
 function Game:update(dt)
-  status, err = pcall(function()
-                        self:update_hover_tile(dt)
-                        self:update_release_creeps(dt)
-                        self:update_next_wave(dt)
-                        self:update_move_creeps(dt)
-                        self:update_remove_dead_creeps()
-                        self:update_fire_towers(dt)
-                        self:update_projectiles(dt)
-                        self:update_remove_dead_projectiles()
-                      end)
-  if not(err == "player has won" or err == "player has died") then
-    error(err)
-    -- stack traces are getting swallowed, gross!
-  end
+  self:update_hover_tile(dt)
+  self:update_release_creeps(dt)
+  self:update_next_wave(dt)
+  self:update_move_creeps(dt)
+  self:update_remove_dead_creeps()
+  self:update_fire_towers(dt)
+  self:update_projectiles(dt)
+  self:update_remove_dead_projectiles()
+  self:update_game_end()
 end
 
 function Game:update_hover_tile(dt)
@@ -111,6 +107,13 @@ function Game:update_projectiles(dt)
   table.each(self.projectiles, function(projectile)
                                  self:move_projectile(projectile, dt)
                                end)
+end
+
+function Game:update_game_end()
+  if self.game_is_over then
+    screen_manager:popState()
+    screen_manager:pushState(self.next_screen)
+  end
 end
 
 function Game:move_projectile(projectile, dt)
@@ -223,15 +226,13 @@ function Game:lose_life()
 end
 
 function Game:lose_game()
-  screen_manager:popState()
-  screen_manager:pushState('DeadScreen')
-  error("player has died")
+  self.game_is_over = true
+  self.next_screen = 'DeadScreen'
 end
 
 function Game:win_game()
-  screen_manager:popState()
-  screen_manager:pushState('WinScreen')
-  error("player has won")
+  self.game_is_over = true
+  self.next_screen = 'WinScreen'
 end
 
 function Game:creep_at_target(creep)
