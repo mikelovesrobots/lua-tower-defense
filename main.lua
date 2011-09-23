@@ -27,3 +27,7 @@ end
 function love.keypressed(key, unicode)
   screen_manager:keypressed(key, unicode)
 end
+
+function love.mousepressed(x, y, button)
+  screen_manager:mousepressed(x, y, button)
+end

@@ -1,10 +1,11 @@
 app = {}
 app.config = {
-  UI_FONT = love.graphics.newFont("fonts/DeutscheZierschrift.ttf", 24),
+  UI_FONT = love.graphics.newFont("fonts/BOOTERFZ.ttf", 26),
   UI_MONEY_COLOR = {207,191,14},
   UI_LIVES_COLOR = {185,0,222},
   UI_TIMER_COLOR = {252,182,5},
   UI_CREEPS_LEFT_COLOR = {127,232,5},
+  UI_SELECTED_TOWER_COLOR = {166,155,244},
   REGULAR_FONT = love.graphics.newFont("fonts/VeraMono.ttf", 15),
   TILE_WIDTH = 64,
   TILE_HEIGHT = 64,
@@ -51,7 +52,8 @@ app.config = {
       radius = 128,
       cooldown = 0.5,
       cost = 10,
-      splash_radius = 0
+      splash = 0,
+      slow = 0
     },
     ICE = {
       image = love.graphics.newImage("images/towers/ice.png"),
@@ -63,7 +65,8 @@ app.config = {
       radius = 128,
       cooldown = 0.4,
       cost = 20,
-      splash_radius = 8
+      splash = 8,
+      slow = 16
     },
     SNIPER = {
       image = love.graphics.newImage("images/towers/sniper.png"),
@@ -75,7 +78,8 @@ app.config = {
       radius = 256,
       cooldown = 0.5,
       cost = 30,
-      splash_radius = 0
+      splash = 0,
+      slow = 0
     },
     SUN = {
       image = love.graphics.newImage("images/towers/sun.png"),
@@ -87,7 +91,8 @@ app.config = {
       radius = 96,
       cooldown = 0.8,
       cost = 40,
-      splash_radius = 32
+      splash = 32,
+      slow = 0
     }
   },
   TILES = { },

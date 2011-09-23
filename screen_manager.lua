@@ -14,3 +14,5 @@ end
 function ScreenManager.update(dt)
 end
 
+function ScreenManager.mousepressed(x, y, button)
+end
